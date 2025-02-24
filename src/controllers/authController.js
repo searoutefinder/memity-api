@@ -87,13 +87,13 @@ const login = async (req, res) => {
   
     try {
       // Check if user exists
-      const user = await db.query(`SELECT id, email, password_hash, is_verified FROM ${process.env.DB_TABLE_USERS} WHERE email = $1`, [email]);
+      const user = await db.query(`SELECT id, email, password_hash, is_verified, user_role FROM ${process.env.DB_TABLE_USERS} WHERE email = $1`, [email]);
 
       if (user.length === 0) {
         return res.status(401).json({ status: 401, message: 'Invalid email or password' });
       }
   
-      const { id, password_hash, is_verified } = user[0];
+      const { id, password_hash, is_verified, user_role } = user[0];
 
       // Check if the user verified their email
       if (!is_verified) {
@@ -108,7 +108,7 @@ const login = async (req, res) => {
       }
 
       // Generate JWT token
-      const token = jwt.sign({ userId: id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+      const token = jwt.sign({ userId: id, userRole: user_role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
       // Set up cookie to to store the new JWT token
       res.cookie('token', token, {
