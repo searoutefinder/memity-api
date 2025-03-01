@@ -1,6 +1,7 @@
 // Load configuration
 require('dotenv').config();
 
+// Load DB service
 const db = require('../config/dbService');
 
 const UsersModel = {
