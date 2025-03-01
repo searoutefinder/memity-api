@@ -21,6 +21,22 @@ const authenticateJWT = (req, res, next) => {
   });
 }
 
+const isUserAdmin = (req, res, next) => {
+  if(typeof req.user !== 'undefined' && typeof req.user.userRole !== 'undefined') {
+    if(req.user.userRole === process.env.ADMIN_ROLE_NAME) {
+      next()
+    }
+    else
+    {
+      return res.status(401).json({status: 401, message: 'Your role is not granted permission to use this resource!'});
+    }    
+  }
+  else
+  {
+    return res.status(401).json({status: 401, message: 'Your role is not granted permission to use this resource!'});
+  }
+}
+
 const requestPasswordReset = async (req, res) => {
     const { email } = req.body;
   
@@ -44,5 +60,6 @@ const requestPasswordReset = async (req, res) => {
 
 module.exports = {
   requestPasswordReset: requestPasswordReset,
-  authenticateJWT: authenticateJWT
+  authenticateJWT: authenticateJWT,
+  isUserAdmin: isUserAdmin
 }
