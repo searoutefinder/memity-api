@@ -3,6 +3,7 @@ require('dotenv').config();
 
 // Load services
 const db = require('../../config/dbService');
+const UsersModel = require('../../models/UsersModel')
 
 const canUserSave = async (user_id) => {
     try{
@@ -19,6 +20,28 @@ const canUserSave = async (user_id) => {
       }
 }
 
+const deleteUser = async (user_id) => {
+  try {
+    const userDeleted = await UsersModel.deleteUser(user_id)
+    return userDeleted
+  }
+  catch(error) {
+    return error
+  }
+}
+
+const listUsers = async () => {
+  try {
+    const usersList = await UsersModel.getUsers()
+    return usersList
+  }
+  catch(error) {
+    return error
+  }
+}
+
 module.exports = {
-  canUserSave: canUserSave
+  canUserSave: canUserSave,
+  listUsers: listUsers,
+  deleteUser: deleteUser
 }

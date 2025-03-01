@@ -2,23 +2,40 @@
 require('dotenv').config();
 
 const express = require('express');
-const { query } = require('../../services/dbService')
-const bcrypt = require('bcrypt')
-const crypto = require('crypto')
 
+// Controllers
+const usersController = require('../../controllers/users/usersController')
+
+// Middleware
 const authMiddleware = require('../../middlewares/authMiddleware')
 
+// Express router
 const router = express.Router();
 
-router.get('/', authMiddleware.authenticateJWT, async (req, res, next) => {
-  const users = await query(`SELECT * FROM memity_memories WHERE user_id = $1;`, [req.user.userId])
-  
-  console.log(users)
+router.get('/', authMiddleware.authenticateJWT, authMiddleware.isUserAdmin, async (req, res, next) => {
+  try {
+    let usersList = await usersController.listUsers()
+    if(usersList.status === "success") {
+      res.status(200).json(usersList)
+    }
+  }
+  catch(error) {
+    res.status(400).json(error)
+  }
 })
 
-// GET - /users Load single user from server by its user_id
-router.get('/:id', (req, res, next) => {
 
-}) 
+router.delete('/:user_id', authMiddleware.authenticateJWT, async (req, res, next) => {
+  try {
+    let userDeletion = await usersController.deleteUser(req.params.user_id)
+    if(userDeletion.status === "success") {
+      // TODO - Also delete the images from S3
+      res.status(200).json(userDeletion)
+    }  
+  }
+  catch(error) {
+    res.status(400).json(error)
+  }
+})
 
 module.exports = router
