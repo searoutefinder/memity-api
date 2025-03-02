@@ -10,13 +10,13 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 
 // Middleware
-//app.use(cors());
 app.use(
   cors({
     origin: 'http://localhost:3000',
-    credentials: true, // Allow cookies to be sent
+    credentials: true
   })
 );
+
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
@@ -46,6 +46,8 @@ const v1Routes = require('./src/routes/routes-v1');
 // API Versioning
 app.use('/auth', authRoutes);
 app.use('/api/v1', v1Routes);
+
+// API Throttling
 app.use('/api/v1', limiter);
 
 // Start server
