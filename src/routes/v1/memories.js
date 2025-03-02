@@ -34,12 +34,10 @@ router.post(
   async (req, res, next) => {
     const canUserSave = await usersController.canUserSave(req.user.userId)
     if(canUserSave) {
-      //console.log("User can save")
       next()
     }
     else
     {
-      //console.log("User can't save")
       res.status(200).json({status: 200, message: 'You are not allowed to  upload more than one picture to the system!'})
     }
   },
@@ -53,11 +51,21 @@ router.post(
   s3ModerateMiddleware.moderate,   
   async (req, res, next) => {
 
-    const memoryObj = {...req.moderationStatus, ...{thumbUrl: req.s3ThumbUrl}, ...{ip: req.userIP, iso: req.userCountry}, ...{user_id: req.user.userId}}
+    const memoryObj = {
+      ...req.moderationStatus,
+      ...{
+        thumbUrl: req.s3ThumbUrl
+      },
+      ...{
+        ip: req.userIP,
+        iso: req.userCountry
+      },
+      ...{user_id: req.user.userId}
+    }
 
     //console.log(geolocatorUtils.getClientIp())
 
-    console.log(memoryObj)
+    //console.log(memoryObj)
 
     if(memoryObj.isSafe) {
 
@@ -77,13 +85,10 @@ router.post(
 // Get likes count on a single memory
 router.get('/:memoryId/likes', validateMemoryIdMiddleware.validateMemoryId, memoriesController.getLikesForMemory)
 
+// Get memories for a selected user
+router.get('/:user_id', authMiddleware.authenticateJWT, authMiddleware.isUserAdmin, memoriesController.getMemoriesForUser)
+
 //Get all memories, sorted by created_at in a descending order
 router.get('/', authMiddleware.authenticateJWT, validatePaginationMiddleware.validatePagination, memoriesController.getAllMemories)
-
-
-// DELETE - /uploads Delete an upload from the system
-router.delete('/', () => {
-
-})
 
 module.exports = router;

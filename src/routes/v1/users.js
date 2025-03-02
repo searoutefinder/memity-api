@@ -12,6 +12,8 @@ const authMiddleware = require('../../middlewares/authMiddleware')
 // Express router
 const router = express.Router();
 
-router.get('/', authMiddleware.authenticateJWT, authMiddleware.isUserAdmin, usersController.listUsers)
+//router.get('/', authMiddleware.authenticateJWT, authMiddleware.isUserAdmin, usersController.listUsers)
+
+router.get('/', authMiddleware.authenticateJWT, authMiddleware.isUserAdmin, usersController.listUserSuggestions)
 
 module.exports = router
