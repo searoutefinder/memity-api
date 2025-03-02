@@ -1,7 +1,7 @@
 // Load configuration
 require('dotenv').config();
 
-const db = require('../config/dbService');
+const db = require('../services/dbService');
 
 const MemoryModel = {
     createMemory: async (memoryObj) => {
@@ -51,9 +51,6 @@ const MemoryModel = {
       }         
     },
     getAllMemories: async (pagination, queryString, user) => {
-        console.log(pagination)
-        console.log(queryString)
-        console.log(user)
       try {
         const { limit, offset } = pagination
         const { query, values } = queryString
@@ -119,8 +116,57 @@ const MemoryModel = {
       catch(error) {
         return {error: 'Internal Server Error'}
       }        
-    }
+    },
+    getMemoryForUser: async (user_id) => {
+      try {
+        const dbResult = await db.query(
+          `SELECT id, user_id, s3_url, s3_thumb_url FROM ${process.env.DB_TABLE_MEMORIES} WHERE user_id = $1`,
+          [user_id]
+        )
 
+        if(dbResult.length > 0) {
+          return {
+            status: 'success',
+            data: dbResult,
+            message: 'Memities retrieved successfully!'
+          }
+        }
+        else
+        {
+          return {
+            status: 'success',
+            data: [],
+            message: 'No memities were retrieved!'
+          }
+        }
+      }
+      catch(error) {
+        return {
+          status: 'error',
+          message: error.code === '22P02' ? 'Malformed input or the referenced memory doesn\'t exist' : 'Internal Server Error',
+          data: []
+        }
+      }
+    },
+    deleteMemory: async (memoryId) => {
+      try {
+        const dbResult = await db.query(
+          `DELETE FROM ${process.env.DB_TABLE_MEMORIES} WHERE id = $1 RETURNING *`,
+          [memoryId]
+        )
+
+        return {
+          status: 'success',
+          message: 'Memity was deleted successfully!',
+          data: dbResult[0]
+        }
+      }
+      catch(error) {
+        return {
+          error: error.code === '22P02' ? 'Malformed input or the referenced memory doesn\'t exist' : 'Internal Server Error'
+        }
+      }
+    }
 };
 
 module.exports = MemoryModel;
