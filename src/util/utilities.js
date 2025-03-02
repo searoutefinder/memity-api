@@ -113,6 +113,30 @@ const deleteS3Image = async (key) => {
   }
 }
 
+const deleteS3ImageByURL = async (imageUrl) => {
+  try {
+    const urlParts = new URL(imageUrl);
+    const key = urlParts.pathname.substring(1);
+
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key
+    })    
+
+    await s3.send(command);
+
+    return {
+      success: true,
+      message: "Image deleted successfully"
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to delete image"
+    };
+  }
+}
+
 const validateMimeType = (file) => {
   const allowedMimeTypes = ["image/png", "image/jpeg"]
   const allowedExtensions = [".png", ".jpg", ".jpeg"]  
@@ -137,6 +161,7 @@ const checkMagicBytes = (buffer) => {
 module.exports = {
   moderateS3Image: moderateS3Image,
   deleteS3Image: deleteS3Image,
+  deleteS3ImageByURL: deleteS3ImageByURL,
   validateMimeType: validateMimeType,
   checkMagicBytes: checkMagicBytes
 }
