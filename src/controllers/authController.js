@@ -2,7 +2,7 @@
 require('dotenv').config();
 
 // Load dependencies
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Load services

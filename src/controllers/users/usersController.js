@@ -2,7 +2,6 @@
 require('dotenv').config();
 
 // Load services
-const db = require('../../config/dbService');
 const UsersModel = require('../../models/UsersModel')
 const MemoryModel = require('../../models/MemoryModel')
 
