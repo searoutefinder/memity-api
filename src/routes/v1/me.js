@@ -3,7 +3,6 @@ require('dotenv').config();
 
 const express = require('express');
 const { query } = require('../../services/dbService')
-const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 
 const authMiddleware = require('../../middlewares/authMiddleware')
