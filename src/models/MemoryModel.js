@@ -59,7 +59,7 @@ const MemoryModel = {
             (SELECT ${process.env.DB_TABLE_MEMORIES}.*, COUNT(${process.env.DB_TABLE_LIKES}.id) AS likes FROM ${process.env.DB_TABLE_MEMORIES} 
             LEFT JOIN ${process.env.DB_TABLE_LIKES} ON ${process.env.DB_TABLE_LIKES}.memory_id = ${process.env.DB_TABLE_MEMORIES}.id
             GROUP BY ${process.env.DB_TABLE_MEMORIES}.id ORDER BY created_at DESC) a LEFT JOIN (SELECT * FROM ${process.env.DB_TABLE_LIKES} 
-            WHERE user_id = $1) b ON a.id = b.memory_id) c WHERE country_code = $2 ORDER BY c.created_at DESC
+            WHERE user_id = $1) b ON a.id = b.memory_id) c WHERE country_code = $2 ORDER BY c.likes DESC
             LIMIT $3 OFFSET $4;`,
             values: [user.userId, queryString.country, limit, offset]
             }
