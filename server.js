@@ -1,19 +1,20 @@
 require('dotenv').config();
+const fs = require('fs')
+const http = require('http')
+const https = require('https')
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-
-const app = express();
-
-const PORT = process.env.PORT || 9000;
-
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+
+// Express application
+const app = express();
 
 // Middleware
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_APP_URL,
     credentials: true
   })
 );
@@ -32,6 +33,10 @@ const limiter = rateLimit({
   }  
 });
 
+// Import API routes
+const authRoutes = require('./src/routes/authRoutes');
+const v1Routes = require('./src/routes/routes-v1');
+
 // API home
 app.get('/', (req, res) => {
   res.json({
@@ -40,10 +45,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Import API routes
-const authRoutes = require('./src/routes/authRoutes');
-const v1Routes = require('./src/routes/routes-v1');
-
 // API Versioning
 app.use('/auth', authRoutes);
 app.use('/api/v1', v1Routes);
@@ -51,7 +52,36 @@ app.use('/api/v1', v1Routes);
 // API Throttling
 app.use('/api/v1', limiter);
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+
+if(process.env.NODE_ENV === 'production') {
+  
+  // SSL Certificate
+  const privateKey = fs.readFileSync(process.env.SSL_KEY, 'utf8')
+  const certificate = fs.readFileSync(process.env.SSL_CERT, 'utf8')
+  const ca = fs.readFileSync(process.env.SSL_CA_BUNDLE, 'utf8')
+
+  // SSL Credentials
+  const credentials = {
+    "key": privateKey,
+    "cert": certificate,
+    "ca": ca
+  }
+
+  const httpsServer = https.createServer(credentials, app)
+  const httpServer = http.createServer(app)
+
+  httpServer.listen(process.env.APP_PORT, () => {
+    console.log(`HTTP Server running in production mode on port ${process.env.APP_PORT}`)
+  })
+
+  httpsServer.listen(443, () => {
+    console.log(`HTTPS Server running in production mode on port 443`)
+  })
+}
+else if(process.env.NODE_ENV === 'development')
+{
+  const httpServer = http.createServer(app)
+  httpServer.listen(process.env.APP_PORT, () => {
+    console.log(`HTTP Server running in development mode on port ${process.env.APP_PORT}`)
+  })
+}
