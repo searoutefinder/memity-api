@@ -13,7 +13,6 @@ const app = express();
 app.use(
   cors({
     origin: process.env.CLIENT_APP_URL,
-    //origin: true,
     credentials: true
   })
 );
@@ -49,7 +48,7 @@ app.use('/auth', authRoutes);
 app.use('/api/v1', v1Routes);
 
 // API Throttling
-app.use('/api/v1', limiter);
+//app.use('/api/v1', limiter);
 
 
 const httpServer = http.createServer(app)
