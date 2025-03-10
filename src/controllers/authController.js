@@ -148,12 +148,12 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
 
-  res.cookie('token', '', {
+  res.clearCookie('token', {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
     path: '/',
-    maxAge: 1,
+    expires: new Date(0),
     domain: '.memity.io'
   });
     
