@@ -131,9 +131,9 @@ const login = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'None', // or Lax
+      sameSite: 'None',
       path: '/',
-      maxAge: 86400000, // 24 hour
+      maxAge: 86400000,
       domain: '.memity.io'
     });
 
@@ -148,12 +148,12 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
 
-  res.clearCookie('token', {
+  res.cookie('token', '', {
     httpOnly: true,
     secure: true,
-    sameSite: 'None', // or Lax
+    sameSite: 'None',
     path: '/',
-    maxAge: 86400000, // 24 hour
+    maxAge: 1,
     domain: '.memity.io'
   });
     
