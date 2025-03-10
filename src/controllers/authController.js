@@ -105,7 +105,7 @@ const login = async (req, res) => {
 
   try {
     const user = await AuthModel.getUserByEmail(email)
-    
+
     if (Object.keys(user.data).length === 0) {
       return res.status(401).json({status: 401, message: 'Invalid email or password' });
     }
@@ -127,7 +127,10 @@ const login = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: id, userRole: user_role, userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: '1d' });
   
+
     // Set up cookie to to store the new JWT token
+    
+    // Production
     res.cookie('token', token, {
       httpOnly: true,
       secure: true,
@@ -136,6 +139,15 @@ const login = async (req, res) => {
       maxAge: 86400000,
       domain: '.memity.io'
     });
+    
+    // Development
+    /*res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      path: '/',
+      maxAge: 86400000
+    });*/    
 
     // Return login status
     res.status(200).json({ status: 200, message: 'Login successful' });  
@@ -148,14 +160,23 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
 
-  res.clearCookie('token', {
+  // Production
+  /*res.clearCookie('token', {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
     path: '/',
     maxAge: 86400000,
     domain: '.memity.io'
-  });
+  });*/
+
+  // Development
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+    path: '/'
+  });  
     
   return res.status(200).json({ status: 200, message: 'Logged out successfully' });
 }
