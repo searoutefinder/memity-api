@@ -114,6 +114,7 @@ const MemoryModel = {
         }
       }
       catch(error) {
+        console.log(error)
         return {error: 'Internal Server Error'}
       }        
     },
