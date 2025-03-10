@@ -134,6 +134,7 @@ const login = async (req, res) => {
       sameSite: 'None', // or Lax
       path: '/',
       maxAge: 86400000, // 24 hour
+      domain: '.memity.io'
     });
 
     // Return login status
