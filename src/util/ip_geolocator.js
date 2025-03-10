@@ -42,9 +42,9 @@ const getCountryFromIP = async (ip) => {
 const getGeolocation = async (req) => {
   try {
     // Get public IP
-    const ipRes = await axios.get('https://api.ipify.org?format=json');
-    const ip = ipRes.data.ip;
-    //const ip = getClientIp(req)
+    //const ipRes = await axios.get('https://api.ipify.org?format=json');
+    //const ip = ipRes.data.ip;
+    const ip = getClientIp(req)
   
     // Get geolocation data based on IP
     const geoRes = await axios.get(`http://ip-api.com/json/${ip}`);
