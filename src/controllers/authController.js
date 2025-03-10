@@ -150,8 +150,11 @@ const logout = async (req, res) => {
 
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Strict'
+    secure: true,
+    sameSite: 'None', // or Lax
+    path: '/',
+    maxAge: 86400000, // 24 hour
+    domain: '.memity.io'
   });
     
   return res.status(200).json({ status: 200, message: 'Logged out successfully' });
