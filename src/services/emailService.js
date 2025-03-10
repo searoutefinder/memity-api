@@ -1,5 +1,6 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const templates = require('../templates/emailTemplates')
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -14,11 +15,14 @@ const transporter = nodemailer.createTransport({
 
 const sendVerificationEmail = async (email, token) => {
 
+  const verificationLink = `${process.env.API_URL}/auth/verify-email/${token}`
+  const verifyEmailText = templates.verifyRegistrationTemplate.replaceAll("{{action_url}}", verificationLink)
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Verify Your Email',
-    html: `<p>Click <a href="${process.env.APP_URL}:${process.env.APP_PORT}/auth/verify-email/${token}">here</a> to verify your email.</p>`
+    subject: 'Memity - Verify Your Email',
+    html: verifyEmailText
   }
 
   await transporter.sendMail(mailOptions)
@@ -26,13 +30,14 @@ const sendVerificationEmail = async (email, token) => {
 
 const sendPasswordResetEmail = async (email, token) => {
   
-  const resetLink = `${process.env.APP_URL}:${process.env.APP_PORT}/auth/reset-password/${token}`;
-  
+  const resetLink = `${process.env.API_URL}/auth/reset-password/${token}`;
+  const resetEmailText = templates.resetPasswordTemplate.replaceAll("{{action_url}}", resetLink)
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Reset Your Password',
-    html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
+    subject: 'Memity - Reset Your Password',
+    html: resetEmailText
   };
   
   await transporter.sendMail(mailOptions);
