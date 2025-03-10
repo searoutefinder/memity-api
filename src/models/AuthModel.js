@@ -39,13 +39,21 @@ const AuthModel = {
   getUserByEmail: async (email) => {
     try {
       const user = await db.query(`SELECT id, email, password_hash, is_verified, user_role FROM ${process.env.DB_TABLE_USERS} WHERE email = $1`, [email]);
-      return {
-        status: 'success',
-        data: user[0]
+      if(user.length > 0) {
+        return {
+          status: 'success',
+          data: user[0]
+        }
+      }
+      else
+      {
+        return {
+          status: 'warning',
+          data: []
+        }
       }
     }
     catch(error) {
-      console.log(error)
       return {
         status: 'error',
         data: []
