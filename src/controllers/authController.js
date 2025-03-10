@@ -153,7 +153,7 @@ const logout = async (req, res) => {
     secure: true,
     sameSite: 'None',
     path: '/',
-    expires: new Date(0),
+    maxAge: 86400000,
     domain: '.memity.io'
   });
     
