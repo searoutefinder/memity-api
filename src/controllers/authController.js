@@ -131,23 +131,23 @@ const login = async (req, res) => {
     // Set up cookie to to store the new JWT token
     
     // Production
-    res.cookie('token', token, {
+    /*res.cookie('token', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
       path: '/',
       maxAge: 86400000,
       domain: '.memity.io'
-    });
+    });*/
     
     // Development
-    /*res.cookie('token', token, {
+    res.cookie('token', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
       path: '/',
       maxAge: 86400000
-    });*/    
+    });    
 
     // Return login status
     res.status(200).json({ status: 200, message: 'Login successful' });  
@@ -161,22 +161,22 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
 
   // Production
-  /*res.clearCookie('token', {
+  res.clearCookie('token', {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
     path: '/',
     maxAge: 86400000,
     domain: '.memity.io'
-  });*/
+  });
 
   // Development
-  res.clearCookie('token', {
+  /*res.clearCookie('token', {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
     path: '/'
-  });  
+  });*/  
     
   return res.status(200).json({ status: 200, message: 'Logged out successfully' });
 }
