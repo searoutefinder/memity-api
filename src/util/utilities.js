@@ -1,7 +1,8 @@
 require('dotenv').config();
 
-const fs = require('fs')
-const { extname } = require("path")
+const crypto = require('crypto');
+const fs = require('fs');
+const { extname } = require("path");
 
 const { RekognitionClient, DetectModerationLabelsCommand } = require("@aws-sdk/client-rekognition");
 const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
@@ -158,10 +159,15 @@ const checkMagicBytes = (buffer) => {
   return null; // Not a valid PNG/JPG
 }
 
+const generateResetToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
 module.exports = {
   moderateS3Image: moderateS3Image,
   deleteS3Image: deleteS3Image,
   deleteS3ImageByURL: deleteS3ImageByURL,
   validateMimeType: validateMimeType,
-  checkMagicBytes: checkMagicBytes
+  checkMagicBytes: checkMagicBytes,
+  generateResetToken: generateResetToken
 }

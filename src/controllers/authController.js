@@ -24,8 +24,8 @@ const register = async (req, res) => {
   }
   catch(error) {
     res.status(500).json({
-      message: 'Error registering user', 
-      error: error.code === '23505' ? 'A user with this email already exists!' : 'Internal Error'
+      status: 'error',
+      message: error.code === '23505' ? 'A user with this email already exists!' : 'Internal Error', 
     })
   }
 }
@@ -53,11 +53,11 @@ const verifyEmail = async (req, res) => {
     // If the user is not yet verified, verify him
     const verification = await AuthModel.verifyUserById(userId)
     if(verification.status === 'success') {
-      res.status(200).json({ status: 200, message: 'Email verified successfully. You can now log in.' });
+      return res.redirect(`${process.env.CLIENT_APP_URL}/auth?mode=email-verified&status=success`)
     }
     else
     {
-      res.status(400).json({ status: 400, message: 'There has been a problem during email verification!' });
+      return res.redirect(`${process.env.CLIENT_APP_URL}/auth?mode=email-verified&status=error`)
     }    
   }
   catch(error) {
@@ -65,38 +65,6 @@ const verifyEmail = async (req, res) => {
       status: 400,
       message: 'Invalid or expired verification link'
     });
-  }
-}
-
-const sendPasswordResetLink = async (req, res) => {
-
-}
-
-const resetPassword = async (req, res) => {
-  const { token } = req.params;
-  const { newPassword } = req.body;
-  
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.SALT_ROUNDS));
-  
-    const pwUpdate = await AuthModel.updateUserPassword(hashedPassword, decoded.userId)
-  
-    if(pwUpdate.status === 'success') {
-      res.status(200).json({
-        status: 200,
-        message: 'Password successfully reset'
-      });
-    }
-    else
-    {
-      res.status(400).json({
-        status: 400,
-        message: 'There was a problem while we tried to update your password!'
-      });
-    }
-  } catch (error) {
-    res.status(400).json({ status: 400, message: 'Invalid or expired token' });
   }
 }
 
@@ -131,23 +99,23 @@ const login = async (req, res) => {
     // Set up cookie to to store the new JWT token
     
     // Production
-    res.cookie('token', token, {
+    /*res.cookie('token', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
       path: '/',
       maxAge: 86400000,
       domain: '.memity.io'
-    });
+    });*/
     
     // Development
-    /*res.cookie('token', token, {
+    res.cookie('token', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
       path: '/',
       maxAge: 86400000
-    });*/    
+    });    
 
     // Return login status
     res.status(200).json({ status: 200, message: 'Login successful' });  
@@ -181,10 +149,113 @@ const logout = async (req, res) => {
   return res.status(200).json({ status: 200, message: 'Logged out successfully' });
 }
 
+const requestPasswordReset = async (req, res) => {
+  
+  const { email } = req.body;
+
+  try {
+    // Get user by his email
+    const user = await AuthModel.getUserByEmail(email);
+    
+    // Return if there are no users returned
+    if(user.data.length === 0) {
+      return res.status(401).json({ status: 'warning', message: 'User not found' });
+    }
+
+    // Create a reset token and store it in the DB
+    const resetToken = await AuthModel.generatePasswordResetToken(user.data.id);
+
+    // Send out an email containing the password reset link
+    await emailService.sendPasswordResetEmail(user.data.email, resetToken.data.password_reset_token)
+
+    res.status(200).json({ status: 'success', message: 'Password reset email sent' });
+  }
+  catch(error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', message: 'Internal server error' });
+  }
+}
+
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  
+  try {
+
+    // Hash incoming password
+    const hashedPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
+
+    // Get user by token
+    const userRequest = await AuthModel.getUserByResetToken(token)
+
+    // Retrun immediately if there is no user returned or if there is an error
+    if(userRequest.status !== 'success') {
+      return res.status(400).json({
+        status: 400,
+        message: 'There was a problem while we tried to reset your password!'
+      });
+    }
+
+    if(typeof userRequest.data === 'undefined') {
+      return res.status(400).json({
+        status: 400,
+        message: 'User can not be identified or token has expired!'
+      });
+    }    
+
+    console.log(userRequest)
+
+    // Update password using the token and the the hashed password
+    const passwordUpdate = await AuthModel.updateUserPassword(hashedPassword, token);
+
+    // set back the reset token and the expiration fields to default
+    const completedTokenReset = await AuthModel.resetPasswordResetToken(userRequest.data.id)
+
+    
+    return res.status(passwordUpdate.status === 'success' ? 200 : 400).json({ status: passwordUpdate.status, message: passwordUpdate.message });
+    
+  }
+  catch(error) {
+    console.log(error)
+    res.status(400).json({
+      status: 400,
+      message: error.message
+    });    
+  }
+  /*
+  const { token } = req.params;
+  const { newPassword } = req.body;
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.SALT_ROUNDS));
+  
+    const pwUpdate = await AuthModel.updateUserPassword(hashedPassword, decoded.userId)
+  
+    if(pwUpdate.status === 'success') {
+      res.status(200).json({
+        status: 200,
+        message: 'Password successfully reset'
+      });
+    }
+    else
+    {
+      res.status(400).json({
+        status: 400,
+        message: 'There was a problem while we tried to update your password!'
+      });
+    }
+  } catch (error) {
+    res.status(400).json({ status: 400, message: 'Invalid or expired token' });
+  }
+  */
+}
+
 module.exports = {
   register: register,
   login: login,
   logout: logout,
   verifyEmail: verifyEmail,
-  resetPassword: resetPassword
+  resetPassword: resetPassword,
+  requestPasswordReset: requestPasswordReset
 }

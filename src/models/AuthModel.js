@@ -3,6 +3,7 @@ require('dotenv').config();
 
 // Load DB service
 const db = require('../services/dbService');
+const utilities = require('../util/utilities')
 
 const AuthModel = {
   createUser: async (email, hashedPassword, verificationToken) => {
@@ -39,6 +40,7 @@ const AuthModel = {
   getUserByEmail: async (email) => {
     try {
       const user = await db.query(`SELECT id, email, password_hash, is_verified, user_role FROM ${process.env.DB_TABLE_USERS} WHERE email = $1`, [email]);
+
       if(user.length > 0) {
         return {
           status: 'success',
@@ -54,6 +56,7 @@ const AuthModel = {
       }
     }
     catch(error) {
+      console.log(error)
       return {
         status: 'error',
         data: []
@@ -79,10 +82,90 @@ const AuthModel = {
     }
     
   },
-  updateUserPassword: async (hashedPassword, userId) => {
+  generatePasswordResetToken: async(userId) => {
+    const resetPasswordToken = utilities.generateResetToken()
+
     try {
-      const passwordUpdate = await db.query(`UPDATE ${process.env.DB_TABLE_USERS} SET password_hash = $1 WHERE id = $2`, 
-        [hashedPassword, userId])
+      const resetTokenGeneration = await db.query(`UPDATE ${process.env.DB_TABLE_USERS} SET password_reset_token = $1,
+        password_reset_expires_at = NOW() + INTERVAL '1 HOUR' WHERE id = $2 RETURNING password_reset_token`, 
+        [resetPasswordToken, userId])
+
+      return {
+        status: 'success',
+        message: 'Reset token generated successfully!',
+        data: resetTokenGeneration[0]
+      }    
+    }
+    catch(error) {
+      return {
+        status: 'error',
+        message: 'Internal Server Error',
+        data: []
+      }
+    }
+  },
+  getUserByResetToken: async(token) => {
+    try {
+      const user = await db.query(`SELECT id FROM ${process.env.DB_TABLE_USERS} WHERE password_reset_token = $1 AND password_reset_expires_at > NOW()`, [token])
+      
+      return {
+        status: 'success',
+        message: 'User successfully retrieved!',
+        data: user[0]
+      }       
+    }
+    catch(error) {
+      return {
+        status: 'error',
+        message: 'Internal Server Error',
+        data: []
+      }
+    }
+  },
+  resetPasswordResetToken: async(userId) => {
+    try {
+      const tokenReset = await db.query(`UPDATE ${process.env.DB_TABLE_USERS} SET password_reset_token = NULL,
+        password_reset_expires_at = NULL WHERE id = $1`, 
+        [userId])
+
+      return {
+        status: 'success',
+        message: 'Reset token was successfully reset!',
+        data: []
+      }    
+    }
+    catch(error) {
+      return {
+        status: 'error',
+        message: 'Internal Server Error',
+        data: []
+      }
+    }
+  },
+  validatePasswordResetToken: async(resetToken) => {
+    try {
+      const isTokenValid = await db.query(`SELECT * FROM ${process.env.DB_TABLE_USERS} WHERE password_reset_token = $1
+        AND password_reset_expires_at > NOW();`, 
+        [resetToken])
+
+      return {
+        status: 'success',
+        message: 'Reset token is valid!',
+        data: []
+      }    
+    }
+    catch(error) {
+      return {
+        status: 'error',
+        message: 'Internal Server Error',
+        data: []
+      }
+    }
+  },  
+  updateUserPassword: async (hashedPassword, token) => {
+    try {
+      const passwordUpdate = await db.query(`UPDATE ${process.env.DB_TABLE_USERS} SET password_hash = $1, updated_at = NOW() WHERE password_reset_token = $2`, 
+        [hashedPassword, token])
 
       return {
         status: 'success',
@@ -97,7 +180,7 @@ const AuthModel = {
         data: []
       }
     }
-  },
+  }
 
 }
 

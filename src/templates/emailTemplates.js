@@ -126,12 +126,12 @@ const verifyRegistrationTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0
       box-sizing: border-box;
     }
     
-    .button--green {
-      background-color: #22BC66;
-      border-top: 10px solid #22BC66;
-      border-right: 18px solid #22BC66;
-      border-bottom: 10px solid #22BC66;
-      border-left: 18px solid #22BC66;
+    .button--orange {
+      background-color: #f97516;
+      border-top: 10px solid #f97516;
+      border-right: 18px solid #f97516;
+      border-bottom: 10px solid #f97516;
+      border-left: 18px solid #f97516;
     }
     
     .button--red {
@@ -439,8 +439,8 @@ const verifyRegistrationTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0
             <tr>
               <td class="email-masthead">
                 <a href="https://app.memity.io" class="f-fallback email-masthead_name">
-                Memity.io
-              </a>
+                  <img style="width:100px;height:auto;" src="https://ezmapdesign.com/demos/aces/logo.png" alt="Memity Logo" />
+                </a>
               </td>
             </tr>
             <!-- Email Body -->
@@ -460,7 +460,7 @@ const verifyRegistrationTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0
                               <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                                 <tr>
                                   <td align="center">
-                                    <a href="{{action_url}}" class="f-fallback button" target="_blank">Verify Registration</a>
+                                    <a href="{{action_url}}" class="f-fallback button button--orange" target="_blank">Verify Registration</a>
                                   </td>
                                 </tr>
                               </table>
@@ -628,12 +628,12 @@ const resetPasswordTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Tran
       box-sizing: border-box;
     }
     
-    .button--green {
-      background-color: #22BC66;
-      border-top: 10px solid #22BC66;
-      border-right: 18px solid #22BC66;
-      border-bottom: 10px solid #22BC66;
-      border-left: 18px solid #22BC66;
+    .button--orange {
+      background-color: #f97516;
+      border-top:10px solid #f97516;
+      border-right:18px solid #f97516;
+      border-bottom:10px solid #f97516;
+      border-left:18px solid #f97516;
     }
     
     .button--red {
@@ -941,8 +941,8 @@ const resetPasswordTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Tran
             <tr>
               <td class="email-masthead">
                 <a href="https://app.memity.io" class="f-fallback email-masthead_name">
-                Memity.io
-              </a>
+                  <img style="width:100px;height:auto;" src="https://ezmapdesign.com/demos/aces/logo.png" alt="Memity Logo" />
+                </a>
               </td>
             </tr>
             <!-- Email Body -->
@@ -954,7 +954,7 @@ const resetPasswordTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Tran
                     <td class="content-cell">
                       <div class="f-fallback">
                         <h1>Hi {{name}},</h1>
-                        <p>You recently requested to reset your password for your Memity account. Use the button below to reset it. <strong>This password reset is only valid for the next 24 hours.</strong></p>
+                        <p>You recently requested to reset your password for your Memity account. Use the button below to reset it. <strong>This password reset is only valid for the next hour.</strong></p>
                         <!-- Action -->
                         <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
@@ -962,16 +962,16 @@ const resetPasswordTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Tran
                               <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                                 <tr>
                                   <td align="center">
-                                    <a href="{{action_url}}" class="f-fallback button button--green" target="_blank">Reset your password</a>
+                                    <a href="{{action_url}}" class="f-fallback button button--orange" target="_blank">Reset your password</a>
                                   </td>
                                 </tr>
                               </table>
                             </td>
                           </tr>
                         </table>
-                        <p>For security, this request was received from a {{operating_system}} device using {{browser_name}}. If you did not request a password reset, please ignore this email or <a href="{{support_url}}">contact support</a> if you have questions.</p>
+                        <p>If you did not request a password reset, please ignore this email or <a href="{{support_url}}">contact support</a> if you have questions.</p>
                         <p>Thanks,
-                          <br>The [Product Name] team</p>
+                          <br>The Memity team</p>
                         <!-- Sub copy -->
                         <table class="body-sub" role="presentation">
                           <tr>

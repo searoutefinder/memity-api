@@ -30,8 +30,11 @@ const sendVerificationEmail = async (email, token) => {
 
 const sendPasswordResetEmail = async (email, token) => {
   
-  const resetLink = `${process.env.API_URL}/auth/reset-password/${token}`;
-  const resetEmailText = templates.resetPasswordTemplate.replaceAll("{{action_url}}", resetLink)
+  const resetLink = `${process.env.CLIENT_APP_URL}/auth?mode=reset-password&token=${token}`;
+  const resetEmailText = templates.resetPasswordTemplate
+    .replaceAll("{{action_url}}", resetLink)
+    .replaceAll("{{name}}", email)
+    .replaceAll("{{support_url}}", `mailto:${process.env.SUPPORT_EMAIL}`)
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
